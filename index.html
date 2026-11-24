@@ -47,7 +47,7 @@ function openStory(id){current=id;const s=stories[id];document.getElementById('s
 const colors=['#f44336','#ff7043','#ff9800','#ffc107','#ffeb3b','#8bc34a','#4caf50','#00bfa5','#00bcd4','#2196f3','#3f51b5','#673ab7','#9c27b0','#e91e63','#795548','#a1887f','#ffffff','#333333'];
 const swatches=document.getElementById('swatches');
 colors.forEach(c=>{const b=document.createElement('button');b.className='swatch';b.style.background=c;b.title=c;b.setAttribute('aria-label','Color '+c);b.onclick=()=>pick(c,b);swatches.append(b)});
-function pick(c,el){color=c;document.querySelectorAll('.swatch').forEach(x=>x.classList.remove('active'));if(el)el.classList.add('active');const input=document.getElementById('customColor');if(/^#[0-9a-f]{6}$/i.test(c)){input.value=c;}else{const cv=document.createElement('canvas'),cx=cv.getContext('2d');cx.fillStyle=c;const normalized=cx.fillStyle;const match=normalized.match(/^rgb\\((\\d+),\\s*(\\d+),\\s*(\\d+)\\)$/);if(match)input.value='#'+match.slice(1).map(v=>Number(v).toString(16).padStart(2,'0')).join('');}}
+function pick(c,el){color=c;document.querySelectorAll('.swatch').forEach(x=>x.classList.remove('active'));if(el)el.classList.add('active');document.getElementById('customColor').value=c;}
 document.getElementById('customColor').addEventListener('input',e=>pick(e.target.value));
 document.querySelectorAll('[data-tool]').forEach(b=>b.addEventListener('click',()=>{tool=b.dataset.tool;document.querySelectorAll('[data-tool]').forEach(x=>x.classList.toggle('selected',x===b));}));
 const canvas=document.getElementById('paintCanvas'),ctx=canvas.getContext('2d',{willReadFrequently:true});
