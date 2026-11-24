@@ -36,7 +36,7 @@ button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}butto
 <section id="paint" class="screen"><div class="section-head"><div><h2 id="paintTitle">El jardín de Dios</h2><p>¡Toca una parte del dibujo para llenarla de color!</p></div><button class="secondary" onclick="go('story')">← Volver</button></div>
 <div class="paint-shell"><aside class="toolrail" aria-label="Herramientas"><button class="tool selected" data-tool="fill" title="Rellenar">🪣</button><button class="tool" data-tool="brush" title="Pincel">🖌️</button><button class="tool" data-tool="eraser" title="Borrador">🧽</button><button class="tool" id="undo" title="Deshacer">↶</button><button class="tool" id="reset" title="Reiniciar">⟲</button></aside>
 <div class="paint-main"><div class="canvas-wrap"><div class="art-stage" id="artStage"><canvas id="paintCanvas" aria-label="Lienzo de color"></canvas><canvas id="lineCanvas" aria-label="Líneas del dibujo"></canvas><img id="sourceArt" src="assets/eden/creacion_manhwa_tierra_regazo_1920x1080_bw.png" alt="" hidden></canvas></div></div>
-<div class="reference-card"><img id="colorReference" alt="Ejemplo de la ilustración coloreada"><div><strong>🌈 Ejemplo de color</strong><div class="wheel-label">Inspírate y crea tu propia versión</div></div></div><div class="palette"><strong>🎨 Colores</strong><div class="swatches" id="swatches"></div><div class="color-wheel"><button class="wheel-toggle" id="wheelToggle" aria-label="Abrir rueda de colores" aria-expanded="false"></button><div class="wheel-panel hidden" id="wheelPanel"><div class="wheel-ring" id="wheelRing" title="Rueda de tonos"></div><div class="wheel-label">Desliza para elegir el tono</div><input id="hueRange" type="range" min="0" max="360" value="0" aria-label="Tono"><div class="wheel-grid" id="wheelGrid"></div></div></div><input id="customColor" type="color" value="#ff6b6b" aria-label="Elegir cualquier color"></div>
+<div class="palette"><strong>🎨 Colores</strong><div class="swatches" id="swatches"></div><div class="color-wheel"><button class="wheel-toggle" id="wheelToggle" aria-label="Abrir rueda de colores" aria-expanded="false"></button><div class="wheel-panel hidden" id="wheelPanel"><div class="wheel-ring" id="wheelRing" title="Rueda de tonos"></div><div class="wheel-label">Desliza para elegir el tono</div><input id="hueRange" type="range" min="0" max="360" value="0" aria-label="Tono"><div class="wheel-grid" id="wheelGrid"></div></div></div><input id="customColor" type="color" value="#ff6b6b" aria-label="Elegir cualquier color"></div>
 <div class="brushbar"><span>Grosor</span><input id="brushSize" type="range" min="2" max="35" value="12"><span id="sizeLabel">12</span><button class="secondary" onclick="saveArt()">💾 Guardar dibujo</button></div></div></div></section>
 </main></div>
 <script>
@@ -47,7 +47,7 @@ function openStory(id){current=id;const s=stories[id];document.getElementById('s
 const colors=['#f44336','#ff7043','#ff9800','#ffc107','#ffeb3b','#8bc34a','#4caf50','#00bfa5','#00bcd4','#2196f3','#3f51b5','#673ab7','#9c27b0','#e91e63','#795548','#a1887f','#ffffff','#333333'];
 const swatches=document.getElementById('swatches');
 colors.forEach(c=>{const b=document.createElement('button');b.className='swatch';b.style.background=c;b.title=c;b.setAttribute('aria-label','Color '+c);b.onclick=()=>pick(c,b);swatches.append(b)});
-function pick(c,el){color=c;document.querySelectorAll('.swatch').forEach(x=>x.classList.remove('active'));if(el)el.classList.add('active');document.getElementById('customColor').value=c;}
+function pick(c,el){color=c;document.querySelectorAll('.swatch').forEach(x=>x.classList.remove('active'));if(el)el.classList.add('active');const input=document.getElementById('customColor');const cv=document.createElement('canvas'),cx=cv.getContext('2d');cx.fillStyle=c;input.value=cx.fillStyle;}
 document.getElementById('customColor').addEventListener('input',e=>pick(e.target.value));
 document.querySelectorAll('[data-tool]').forEach(b=>b.addEventListener('click',()=>{tool=b.dataset.tool;document.querySelectorAll('[data-tool]').forEach(x=>x.classList.toggle('selected',x===b));}));
 const canvas=document.getElementById('paintCanvas'),ctx=canvas.getContext('2d',{willReadFrequently:true});
@@ -63,7 +63,7 @@ function prepareArt(){
  const pixels=bctx.getImageData(0,0,W,H).data,mask=new Uint8Array(COUNT),expanded=new Uint8Array(COUNT);
  for(let i=0;i<COUNT;i++){const k=i*4,lum=(pixels[k]*299+pixels[k+1]*587+pixels[k+2]*114)/1000;if(lum<175)mask[i]=1;}
  // Engrosar únicamente la barrera del contorno para cerrar pequeñas interrupciones.
- for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x;if(!mask[i])continue;for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){const xx=x+dx,yy=y+dy;if(xx>=0&&xx<W&&yy>=0&&yy<H)expanded[yy*W+xx]=1;}}
+ for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x;if(!mask[i])continue;for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++){const xx=x+dx,yy=y+dy;if(xx>=0&&xx<W&&yy>=0&&yy<H)expanded[yy*W+xx]=1;}}
  barrier=expanded;
  const lines=lineCtx.createImageData(W,H),ld=lines.data;
  for(let i=0;i<COUNT;i++){const k=i*4,lum=(pixels[k]*299+pixels[k+1]*587+pixels[k+2]*114)/1000;ld[k]=43;ld[k+1]=37;ld[k+2]=34;ld[k+3]=Math.max(0,Math.min(255,Math.round((248-lum)*1.18)));}
@@ -72,9 +72,9 @@ function prepareArt(){
 sourceArt.addEventListener('load',prepareArt);if(sourceArt.complete&&sourceArt.naturalWidth)prepareArt();
 function stagePoint(e){const r=canvas.getBoundingClientRect();return{x:Math.max(0,Math.min(W-1,Math.floor((e.clientX-r.left)*W/r.width))),y:Math.max(0,Math.min(H-1,Math.floor((e.clientY-r.top)*H/r.height)))};}
 function floodFill(x,y){
- if(!ready)return;const start=y*W+x;if(barrier[start])return;
+ if(!ready)return;let start=y*W+x;if(barrier[start]){let best=-1,bestD=1e9;for(let rad=1;rad<=9&&best<0;rad++)for(let dy=-rad;dy<=rad;dy++)for(let dx=-rad;dx<=rad;dx++){const xx=x+dx,yy=y+dy;if(xx<0||xx>=W||yy<0||yy>=H)continue;const j=yy*W+xx,d=dx*dx+dy*dy;if(!barrier[j]&&d<bestD){best=j;bestD=d;}}if(best<0)return;start=best;}
  const seen=new Uint8Array(COUNT),stack=[start],region=[];seen[start]=1;
- while(stack.length){const i=stack.pop();region.push(i);if(region.length>COUNT*.92)return;
+ while(stack.length){const i=stack.pop();region.push(i);if(region.length>=COUNT)break;
   const left=i-1,right=i+1,up=i-W,down=i+W;
   if(i%W>0&&!seen[left]&&!barrier[left]){seen[left]=1;stack.push(left);}
   if(i%W<W-1&&!seen[right]&&!barrier[right]){seen[right]=1;stack.push(right);}
@@ -107,7 +107,6 @@ function makeColorWheel(){
 }
 document.getElementById('wheelToggle').onclick=()=>{const p=document.getElementById('wheelPanel'),open=p.classList.toggle('hidden')===false;document.getElementById('wheelToggle').setAttribute('aria-expanded',String(open));};
 makeColorWheel();
-function makeReference(){const ref=document.getElementById('colorReference');const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=600;c.height=338;const x=c.getContext('2d');x.drawImage(im,0,0,600,338);const d=x.getImageData(0,0,600,338),p=d.data;for(let y=0;y<338;y++)for(let xx=0;xx<600;xx++){const k=(y*600+xx)*4,lum=(p[k]*299+p[k+1]*587+p[k+2]*114)/1000;let base;if(y<105)base=[155,207,232];else if(y<230)base=xx<300?[239,207,151]:[120,169,111];else base=xx<300?[104,156,94]:[76,128,82];const shade=.45+.55*lum/255;p[k]=base[0]*shade;p[k+1]=base[1]*shade;p[k+2]=base[2]*shade;}x.putImageData(d,0,0);ref.src=c.toDataURL('image/png');};im.src=sourceArt.src;}
-makeReference();
+
 pick(colors[0],swatches.firstChild);
 </script></body></html>
