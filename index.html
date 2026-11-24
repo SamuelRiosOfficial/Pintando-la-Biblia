@@ -74,7 +74,7 @@ function stagePoint(e){const r=canvas.getBoundingClientRect();return{x:Math.max(
 function floodFill(x,y){
  if(!ready)return;const start=y*W+x;if(barrier[start])return;
  const seen=new Uint8Array(COUNT),stack=[start],region=[];seen[start]=1;
- while(stack.length){const i=stack.pop();region.push(i);if(region.length>COUNT*.55)return;
+ while(stack.length){const i=stack.pop();region.push(i);if(region.length>COUNT*.92)return;
   const left=i-1,right=i+1,up=i-W,down=i+W;
   if(i%W>0&&!seen[left]&&!barrier[left]){seen[left]=1;stack.push(left);}
   if(i%W<W-1&&!seen[right]&&!barrier[right]){seen[right]=1;stack.push(right);}
